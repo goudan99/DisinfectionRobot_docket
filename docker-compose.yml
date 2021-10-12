@@ -1,0 +1,67 @@
+version: '2'
+services:
+  robot_server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: "root"
+    working_dir: /var/www/html
+    restart: always
+    container_name: robot_server
+    environment:
+      - APP_DEBUG=false
+      - LOG_CHANNEL=daily
+      - SWOOLE_HTTP_HOST=0.0.0.0
+      - SWOOLE_HTTP_PORT=80
+      - SWOOLE_HTTP_WEBSOCKET=true
+      - SWOOLE_HOT_RELOAD_ENABLE=false
+      - DB_HOST=robot_mysql
+      - DB_PORT=3306
+      - DB_DATABASE=robot
+      - DB_USERNAME=root
+      - DB_PASSWORD=123456
+    volumes:
+      - ../code:/var/www/html
+    expose:
+      - 80
+    ports:
+      - "8081:80"
+    #command: 
+    #   - php artisan swoole:http start
+    depends_on:
+      - "robot_mysql"
+  robot_mysql:
+    image: "mysql:5.7"
+    container_name: robot_mysql
+    user: "root"
+    restart: always
+    volumes:
+      - /data/mysql/data:/var/lib/mysql
+      - /data/mysql/bin:/var/lib/binlog
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+    ports:
+      - "3307:3306"
+  robot_redis:
+    image: "redis:5"
+    user: "root"
+    restart: always
+    container_name: robot_redis
+    volumes:
+      - /data/redis:/data
+    ports:
+      - "6380:6379"
+  robot_rabbitmq:
+    image: "rabbitmq:3-management"
+    user: "root"
+    restart: always
+    container_name: robot_rabbitmq
+    volumes:
+      - /data/redis:/data
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+      - "1883:1883"
