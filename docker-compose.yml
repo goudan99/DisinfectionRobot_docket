@@ -9,25 +9,27 @@ services:
     restart: always
     container_name: robot_server
     environment:
+      - APP_KEY=base64:ruIIfpWnhuUEYqGfrI+nS1GKaPWxxT5+RvmNkAqeKTo=
+      - APP_ENV=local
       - APP_DEBUG=false
       - LOG_CHANNEL=daily
       - SWOOLE_HTTP_HOST=0.0.0.0
       - SWOOLE_HTTP_PORT=80
       - SWOOLE_HTTP_WEBSOCKET=true
       - SWOOLE_HOT_RELOAD_ENABLE=false
-      - DB_HOST=robot_mysql
+      - DB_HOST=172.16.0.5
       - DB_PORT=3306
-      - DB_DATABASE=robot
-      - DB_USERNAME=root
+      - DB_DATABASE=xiaodu
+      - DB_USERNAME=xiaodu
       - DB_PASSWORD=123456
     volumes:
       - ../code:/var/www/html
     expose:
       - 80
     ports:
-      - "8081:80"
-    #command: 
-    #   - php artisan swoole:http start
+      - "8085:80"
+    command: 
+       - php artisan swoole:http start
     depends_on:
       - "robot_mysql"
   robot_mysql:
@@ -40,8 +42,8 @@ services:
       - /data/mysql/bin:/var/lib/binlog
     environment:
       - MYSQL_ROOT_PASSWORD=123456
-    ports:
-      - "3307:3306"
+        #ports:
+        #    - "3307:3306"
   robot_redis:
     image: "redis:5"
     user: "root"
@@ -52,16 +54,185 @@ services:
     ports:
       - "6380:6379"
   robot_rabbitmq:
-    image: "rabbitmq:3-management"
-    user: "root"
-    restart: always
-    container_name: robot_rabbitmq
-    volumes:
-      - /data/redis:/data
-    environment:
+     image: "rabbitmq:3-management"
+     user: "root"
+     restart: always
+     container_name: robot_rabbitmq
+     volumes:
+       - /data/redis:/data
+     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
-    ports:
+     ports:
       - "15672:15672"
-      - "5672:5672"
-      - "1883:1883"
+        #- "5672:5672"
+        #- "1883:1883"
+  abacus_jenkins:
+    image: jenkins/jenkins
+    user: "root"
+    container_name: abacus_jenkins
+    restart: always
+    volumes:
+       - ../jenkins/home:/var/jenkins_home
+       - ../:/data
+       - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "9080:8080"
+      #- "8090:50000"
+ubuntu@VM-0-5-ubuntu:/www/wwwroot/api.kf-robotics.com/docker$ vim docker-compose.yml 
+ubuntu@VM-0-5-ubuntu:/www/wwwroot/api.kf-robotics.com/docker$ sudo vim docker-compose.yml 
+ubuntu@VM-0-5-ubuntu:/www/wwwroot/api.kf-robotics.com/docker$ 
+Connection closed by foreign host.
+
+Disconnected from remote host(公司服务器) at 15:37:02.
+
+Type `help' to learn how to use Xshell prompt.
+[c:\~]$ ssh robot@192.168.8.142
+
+Connecting to 106.53.8.100:22...
+Connection established.
+To escape to local shell, press 'Ctrl+Alt+]'.
+
+Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-96-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+ System information disabled due to load higher than 2.0
+
+ * Super-optimized for small spaces - read how we shrank the memory
+   footprint of MicroK8s to make it the smallest full K8s around.
+
+   https://ubuntu.com/blog/microk8s-memory-optimisation
+
+ * Canonical Livepatch is available for installation.
+   - Reduce system reboots and improve kernel security. Activate at:
+     https://ubuntu.com/livepatch
+New release '20.04.3 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+
+Last login: Thu Oct 14 15:34:23 2021 from 113.118.135.143
+ubuntu@VM-0-5-ubuntu:~$ 
+Connection closed by foreign host.
+
+Disconnected from remote host(公司服务器) at 15:41:11.
+
+Type `help' to learn how to use Xshell prompt.
+[c:\~]$ 
+
+Connecting to 106.53.8.100:22...
+Connection established.
+To escape to local shell, press 'Ctrl+Alt+]'.
+
+Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-96-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+ System information disabled due to load higher than 2.0
+
+ * Super-optimized for small spaces - read how we shrank the memory
+   footprint of MicroK8s to make it the smallest full K8s around.
+
+   https://ubuntu.com/blog/microk8s-memory-optimisation
+
+ * Canonical Livepatch is available for installation.
+   - Reduce system reboots and improve kernel security. Activate at:
+     https://ubuntu.com/livepatch
+New release '20.04.3 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+
+Last login: Thu Oct 14 15:37:11 2021 from 113.118.135.143
+ubuntu@VM-0-5-ubuntu:~$ cd /www/wwwroot/api.kf-robotics.com/
+ubuntu@VM-0-5-ubuntu:/www/wwwroot/api.kf-robotics.com$ ls
+code  docker  jenkins
+ubuntu@VM-0-5-ubuntu:/www/wwwroot/api.kf-robotics.com$ cd docker/
+ubuntu@VM-0-5-ubuntu:/www/wwwroot/api.kf-robotics.com/docker$ cat docker-compose.yml 
+version: '2'
+services:
+  robot_server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: "root"
+    working_dir: /var/www/html
+    restart: always
+    container_name: robot_server
+    environment:
+      - APP_KEY=base64:ruIIfpWnhuUEYqGfrI+nS1GKaPWxxT5+RvmNkAqeKTo=
+      - APP_ENV=local
+      - APP_DEBUG=false
+      - LOG_CHANNEL=daily
+      - SWOOLE_HTTP_HOST=0.0.0.0
+      - SWOOLE_HTTP_PORT=80
+      - SWOOLE_HTTP_WEBSOCKET=true
+      - SWOOLE_HOT_RELOAD_ENABLE=false
+      - DB_HOST=172.16.0.5
+      - DB_PORT=3306
+      - DB_DATABASE=xiaodu
+      - DB_USERNAME=xiaodu
+      - DB_PASSWORD=123456
+    volumes:
+      - ../code:/var/www/html
+    expose:
+      - 80
+    ports:
+      - "8085:80"
+    command: 
+       - php artisan swoole:http start
+    depends_on:
+      - "robot_mysql"
+  robot_mysql:
+    image: "mysql:5.7"
+    container_name: robot_mysql
+    user: "root"
+    restart: always
+    volumes:
+      - /data/mysql/data:/var/lib/mysql
+      - /data/mysql/bin:/var/lib/binlog
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+        #ports:
+        #    - "3307:3306"
+  robot_redis:
+    image: "redis:5"
+    user: "root"
+    restart: always
+    container_name: robot_redis
+    volumes:
+      - /data/redis:/data
+    ports:
+      - "6380:6379"
+  robot_rabbitmq:
+     image: "rabbitmq:3-management"
+     user: "root"
+     restart: always
+     container_name: robot_rabbitmq
+     volumes:
+       - /data/redis:/data
+     environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+     ports:
+      - "15672:15672"
+        #- "5672:5672"
+        #- "1883:1883"
+  abacus_jenkins:
+    image: jenkins/jenkins
+    user: "root"
+    container_name: abacus_jenkins
+    restart: always
+    volumes:
+       - ../jenkins/home:/var/jenkins_home
+       - ../:/data
+       - /etc/localtime:/etc/localtime:ro
+       - /var/run/docker.sock:/var/run/docker.sock
+       - /usr/bin/docker:/usr/bin/docker
+       - /usr/bin/docker-compose:/usr/bin/docker-compose
+    ports:
+      - "9080:8080"
+      #- "8090:50000"
