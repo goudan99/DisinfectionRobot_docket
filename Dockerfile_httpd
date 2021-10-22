@@ -1,0 +1,60 @@
+FROM centos:7
+MAINTAINER zsfirefly <zsfirefly@qq.com> 
+
+#清掉yum缓存
+#RUN yum -y update; yum clean all 
+RUN yum install -y httpd
+RUN yum install -y mod_ssl
+RUN yum install -y git
+
+#修改httpd配置文件
+RUN rm -f /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/autoindex.conf /etc/httpd/conf.d/userdir.conf /var/www/error/noindex.html 
+RUN sed -i 's/#ServerName www.example.com:80/ServerName open.heekit.com/g' /etc/httpd/conf/httpd.conf
+RUN sed -i 's/"\/var\/www\/html"/"\/var\/www\/html\/public"/g' /etc/httpd/conf/httpd.conf
+RUN sed -i 's/index.html/index.php/g' /etc/httpd/conf/httpd.conf
+RUN sed -i 's/Options Indexes FollowSymLinks/Options FollowSymLinks/g' /etc/httpd/conf/httpd.conf
+RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/httpd/conf/httpd.conf
+
+#优化httpd
+RUN sed -i '$a TraceEnable Off' /etc/httpd/conf/httpd.conf
+RUN sed -i '$a Timeout 10' /etc/httpd/conf/httpd.conf
+RUN sed -i '$a keepAlive On' /etc/httpd/conf/httpd.conf
+RUN sed -i '$a keepAliveTimeout 15' /etc/httpd/conf/httpd.conf
+RUN sed -i '$a AcceptFilter http data' /etc/httpd/conf/httpd.conf
+RUN sed -i '$a AcceptFilter https data' /etc/httpd/conf/httpd.conf
+RUN sed -i '$a ServerSignature off' /etc/httpd/conf/httpd.conf
+RUN sed -i '$a ServerTokens Prod' /etc/httpd/conf/httpd.conf
+
+#安装httpd及php7
+RUN yum install -y epel-release
+RUN yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+RUN yum-config-manager --disable remi-php54
+RUN yum-config-manager --enable remi-php73
+#RUN yum install -y --enablerepo="webtatic" mod_php72w.x86_64 php72w-cli.x86_64 php72w-common.x86_64 php72w-gd.x86_64 php72w-mbstring.x86_64 php72w-pdo.x86_64  php72w-xml.x86_64 php72w-mysql.x86_64
+#RUN yum install -y php php-cli php-fpm php-mysqlnd php-zip php-devel php-gd php-mcrypt php-mbstring php-curl php-xml php-pear php-bcmath php-json php-opcache php-redis php-soap
+RUN yum install -y php php-cli php-common php-gd php-mcrypt php-mbstring php-curl php-pdo php-mysql php-xml php-pear php-bcmath php-json php-opcache php-redis php-soap php-mysqlnd php-zip php-devel 
+
+
+RUN sed -i 's/expose_php = On/expose_php = Off/g' /etc/php.ini
+RUN sed -i 's/memory_limit = 128M/memory_limit = -1/g' /etc/php.ini
+#安装composer
+#RUN php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');"
+#RUN php composer-setup.php
+#RUN mv composer.phar /sbin/composer
+
+#清掉yum缓存,及系统临时文件
+#RUN yum clean all 
+RUN rm -rf /tmp/*
+RUN rm -rf /var/cache/yum/*
+
+#装入应用
+#ADD ./ /var/www/html
+
+#RUN chmod -R 760 /var/www/html
+#RUN chown -R apache:apache /var/www/html
+
+#制作启动文件
+CMD ["-D","FOREGROUND"]
+ENTRYPOINT ["/usr/sbin/httpd"]
+#开放80端口
+EXPOSE 80

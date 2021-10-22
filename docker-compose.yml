@@ -3,7 +3,7 @@ services:
   robot_server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_httpd
     user: "root"
     working_dir: /var/www/html
     restart: always
@@ -28,8 +28,8 @@ services:
       - 80
     ports:
       - "8085:80"
-    command: 
-       - php artisan swoole:http start
+#    command: 
+#       - php artisan swoole:http start
     depends_on:
       - "robot_mysql"
   robot_mysql:
